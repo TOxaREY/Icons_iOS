@@ -2,8 +2,6 @@
 //  IconsApp.swift
 //  Icons
 //
-//  Created by Alexey Golovanov on 06.10.2026.
-//
 
 import SwiftUI
 
