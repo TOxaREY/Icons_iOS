@@ -8,6 +8,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = IconViewModel()
     @State private var selectedIcon: IconItem?
+    @State private var showAboutAlert = false
 
     var body: some View {
         NavigationStack {
@@ -34,6 +35,26 @@ struct ContentView: View {
             .navigationTitle("Иконы")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchText, prompt: "Поиск по названию, месту или №...")
+            // Добавление кнопки (i) в правый верхний угол тулбара
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showAboutAlert = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 18))
+                    }
+                }
+            }
+            // Диалоговое окно «О приложении»
+            .alert("О приложении", isPresented: $showAboutAlert) {
+                Button("Понятно", role: .cancel) { }
+            } message: {
+                let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+                let dbDate = viewModel.lastModifiedDate.isEmpty ? "не указана" : viewModel.lastModifiedDate
+                
+                Text("Каталог икон храма прп. Сергия Радонежского в Гольяново\n\n📅 Редакция базы: \(dbDate)\n📦 Версия приложения: \(appVersion)")
+            }
             .sheet(item: $selectedIcon) { icon in
                 IconDetailSheet(item: icon)
                     .presentationDetents([.medium, .large])
@@ -50,15 +71,16 @@ struct IconRowView: View {
 
     private var badgeColor: Color {
         if item.locationCode.hasPrefix("Шкаф") {
-            return Color(red: 0.18, green: 0.49, blue: 0.20) // Зеленый (#2E7D32)
-        } else if item.locationCode.hasPrefix("Полка") {
+            return Color(red: 0.18, green: 0.49, blue: 0.20) // Зелёный (#2E7D32)
+        } else if item.locationCode.hasPrefix("Стеллаж") {
             return Color(red: 0.08, green: 0.40, blue: 0.75) // Синий (#1565C0)
         } else if item.locationCode.hasPrefix("Алтарь") || item.locationCode.hasPrefix("Храм") {
-            return Color(red: 0.42, green: 0.11, blue: 0.60) // Фиолетовый/Бордовый (#6A1B9A)
+            return Color(red: 0.42, green: 0.11, blue: 0.60) // Бордово-фиолетовый (#6A1B9A)
         } else {
-            return Color(red: 0.00, green: 0.41, blue: 0.36) // Бирюзовый (#00695C)
+            return Color(red: 0.00, green: 0.41, blue: 0.36) // Бирюзовый (#00695C) — Коробка и Киоты
         }
     }
+
 
     var body: some View {
         HStack(spacing: 14) {

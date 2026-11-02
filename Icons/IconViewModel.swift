@@ -2,8 +2,6 @@
 //  IconViewModel.swift
 //  Icons
 //
-//  Created by Alexey Golovanov on 06.10.2026.
-//
 
 import Foundation
 import SwiftUI
@@ -13,15 +11,17 @@ import Combine
 final class IconViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published private(set) var allIcons: [IconItem] = []
+    @Published private(set) var lastModifiedDate: String = ""
 
     init() {
-        self.allIcons = CsvParser.loadIcons()
+        let parseResult = CsvParser.loadIcons()
+        self.allIcons = parseResult.items
+        self.lastModifiedDate = parseResult.lastModifiedDate
     }
 
     var filteredIcons: [IconItem] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if query.isEmpty {
-            // По умолчанию сортировка по алфавиту
             return allIcons.sorted { $0.title.localizedCompare($1.title) == .orderedAscending }
         } else {
             return allIcons
